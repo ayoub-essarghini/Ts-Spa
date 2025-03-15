@@ -1,19 +1,13 @@
-import { patch, VNode } from "./vdom.js";
+import { createElement, render } from "../core/roboto.js";
 
 export type Route = {
   path: string;
-  component: { new (onDataUpdated: () => void): { render: () => VNode } };
+  component: () => any;
 };
 
 export class Router {
   private routes: Route[];
   private appContainer: HTMLElement;
-  private currentVNode: VNode = {
-    tag: 'div',
-    props: {},
-    children: []
-  };
-  private activeComponent: any = null;
   private isNavigating: boolean = false;
 
   private get currentPath(): string {
@@ -30,10 +24,10 @@ export class Router {
     window.addEventListener("popstate", () => this.route());
     
     // Use setTimeout to ensure DOM is fully loaded
-    setTimeout(() => this.route(), 0);
+    // setTimeout(() => this.route(), 0);
   }
 
-  private route(): void {
+  public route(): void {
     // Prevent multiple simultaneous navigations
     if (this.isNavigating) {
       return;
@@ -50,44 +44,21 @@ export class Router {
         route = wildcardRoute;
       }
     }
+    
     this.updateNavigationVisibility();
+    
     if (route) {
-      // Create a callback that the component can use to signal updates
-      const onDataUpdated = () => {
-        if (this.activeComponent) {
-          const newVNode = this.activeComponent.render();
-          patch(this.appContainer, newVNode, this.currentVNode);
-          this.currentVNode = newVNode;
-        }
-      };
-      
       // Clear the container completely before mounting a new component
       this.appContainer.innerHTML = '';
       
-      // Reset current VNode to empty div
-      this.currentVNode = {
-        tag: 'div',
-        props: {},
-        children: []
-      };
+      // Get the component function
+      const ComponentFunction = route.component;
       
-      // Store the active component
-      this.activeComponent = new route.component(onDataUpdated);
-      const newVNode = this.activeComponent.render();
-      patch(this.appContainer, newVNode, this.currentVNode);
-      this.currentVNode = newVNode;
+      // Render the component using JSX
+      render(<ComponentFunction />, this.appContainer);
     } else {
-      this.activeComponent = null;
- 
       this.appContainer.innerHTML = '';
-      
-      const newVNode: VNode = {
-        tag: "h1",
-        props: {},
-        children: ["404 - Page Not Found"]
-      };
-      patch(this.appContainer, newVNode, this.currentVNode);
-      this.currentVNode = newVNode;
+      render(<div>404 - Page Not Found</div>, this.appContainer);
     }
     
     this.isNavigating = false;
