@@ -1,7 +1,8 @@
-import { createElement, useState } from "../core/roboto.js";
+import { createElement, useEffect, useState } from "../core/roboto.js";
 
 export const App = () => {
     const [count, setCount] = useState(0);
+ 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white p-6">
         <div className="w-full max-w-md p-8 bg-gray-700 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
