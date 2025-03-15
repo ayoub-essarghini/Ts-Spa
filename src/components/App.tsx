@@ -1,4 +1,4 @@
-import { createElement, useEffect, useState } from "../core/roboto.js";
+import { createElement, useState } from "../core/roboto.js";
 
 export const App = () => {
     const [count, setCount] = useState(0);

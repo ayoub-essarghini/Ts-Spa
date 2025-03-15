@@ -281,10 +281,16 @@ export function useState<T>(initial: T): [T, (action: (prevState: T) => T) => vo
 
   const actions = oldHook ? oldHook.queue : [];
   actions.forEach(action => {
+    if (typeof action !== 'function') {
+      throw new Error('Action must be a function');
+    }
     hook.state = action(hook.state);
   });
 
   const setState = (action: (prevState: T) => T) => {
+    if (typeof action !== 'function') {
+      throw new Error('Action must be a function');
+    }
     hook.queue.push(action);
     wipRoot = {
       type: currentRoot!.type,
@@ -300,6 +306,7 @@ export function useState<T>(initial: T): [T, (action: (prevState: T) => T) => vo
   hookIndex!++;
   return [hook.state, setState];
 }
+
 
 export function useEffect(callback: () => void | (() => void), deps?: any[]): void {
   const oldHook =
